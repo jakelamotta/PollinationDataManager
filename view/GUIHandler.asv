@@ -154,17 +154,17 @@ classdef GUIHandler < handle
                 'units', 'normalized','String','-','Position',[0.45 .7 .1 .02]);
             
             this.helpTextImport = uicontrol('parent',this.mainWindow,'style','text',...
-                'units', 'normalized','visible','off','Position',[0.14 .92 .1 .02],'String',...
+                'units', 'normalized','visible','off','Position',[0.14 .92 .1 .075],'String',...
                 'Button for organizing raw data into a folder structure, it does not import anything into the program');
             
             this.helpTextLoad = uicontrol('parent',this.mainWindow,'style','text',...
-                'units', 'normalized','visible','off','Position',[0.26 .92 .1 .02],...
+                'units', 'normalized','visible','off','Position',[0.26 .92 .1 .075],...
                 'String','Button for loading data into the program');
             
             this.helpTextExport = uicontrol('parent',this.mainWindow,'style','text',...
                 'units', 'normalized',...
                 'String','B','visible','off',...
-                'Position',[0.38 .92 .1 .02]);
+                'Position',[0.38 .92 .1 .1]);
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%%%%%%%%%%%%%%%%%%TABLE INITIALIZATION%%%%%%%%%%%%%%%%%%%%%%
@@ -240,14 +240,16 @@ classdef GUIHandler < handle
             
             if ~cancelled
                 observation = this.dataManager.getObs(dataType,paths_);
+                if observation.getNumRows > 1
+                    if observation.hasMultiples() || strcmp(dataType,'Spectro')...
+                            || strcmp(dataType,'Olfactory') || strcmp(dataType,'SpectroJaz')
 
-                if observation.hasMultiples() || strcmp(dataType,'Spectro')...
-                        || strcmp(dataType,'Olfactory') || strcmp(dataType,'SpectroJaz')
-
-                    this.launchDialogue(dataType,observation);
+                        this.launchDialogue(dataType,observation);
+                    else
+                        this.dataManager.finalize(dataType,observation);
+                    end
                 else
-                    this.dataManager.finalize(dataType,observation);
-                end
+                    errordlg(['Error'],'No ');
             end
         end
         
@@ -369,14 +371,14 @@ classdef GUIHandler < handle
         function this = helpCallback(this,varargin)
             if strcmp(get(this.helpBtn,'String'),'Help')
                 set(this.helpTextImport,'visible','on');
-                set(this.helpTextImport,'visible','on');
-                set(this.helpTextImport,'visible','on');
+                set(this.helpTextLoad,'visible','on');
+                set(this.helpTextExport,'visible','on');
                 set(this.helpBtn,'String','Hide help');
             else
-                set(this.helpTextImport,'visible','on');
-                set(this.helpTextImport,'visible','on');
-                set(this.helpTextImport,'visible','on');
-                set(this.helpBtn,'String','Hide help');
+                set(this.helpTextImport,'visible','off');
+                set(this.helpTextLoad,'visible','off');
+                set(this.helpTextExport,'visible','off');
+                set(this.helpBtn,'String','Help');
             end
         end
         

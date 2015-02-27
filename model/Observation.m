@@ -264,7 +264,6 @@ classdef Observation < handle
                     else
                        matrix{i,y1pos} = y1(1:dsrate);
                        matrix{i,x1newpos} = x1(1:dsrate);
-                       a = 1;
                     end
                 end
             end

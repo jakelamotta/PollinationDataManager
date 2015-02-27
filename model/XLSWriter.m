@@ -9,8 +9,8 @@ classdef XLSWriter
         
         %%Function that writes to excel
         function success = writeToXLS(this,fileName,obj)
-            f = strrep(datestr(now),' ','-');
-            f = strrep(f,':','');
+%             f = strrep(datestr(now),' ','-');
+%             f = strrep(f,':','');
             
             %Uncomment this to make the program saving mat-files with
             %aswell as exporting to excel.

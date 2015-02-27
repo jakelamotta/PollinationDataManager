@@ -107,11 +107,11 @@ function okBtn_Callback(hObject, eventdata, handles)
     end
     
     if get(handles.radiobutton6,'value')
-        types{4} = 'Olfactory';
+        types{7} = 'Olfactory';
     end
     
     if get(handles.radiobutton9,'value')
-       types{7} = 'SpectroJaz'; 
+       types{4} = 'SpectroJaz'; 
     end
     
     if get(handles.loadrb,'value')

@@ -240,13 +240,18 @@ classdef GUIHandler < handle
             
             if ~cancelled
                 observation = this.dataManager.getObs(dataType,paths_);
+                if observation.getNumRows > 1
+                    if observation.hasMultiples() || strcmp(dataType,'Spectro')...
+                            || strcmp(dataType,'Olfactory') || strcmp(dataType,'SpectroJaz')
 
-                if observation.hasMultiples() || strcmp(dataType,'Spectro')...
-                        || strcmp(dataType,'Olfactory') || strcmp(dataType,'SpectroJaz')
-
-                    this.launchDialogue(dataType,observation);
+                        this.launchDialogue(dataType,observation);
+                    else
+                        this.dataManager.finalize(dataType,observation);
+                    end
                 else
-                    this.dataManager.finalize(dataType,observation);
+                    if strcmp(dataType,'Weather')
+                        errordlg(['No ',dataType,' data was found'],['Error']);
+                    end
                 end
             end
         end

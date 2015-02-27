@@ -121,7 +121,7 @@ classdef DataManager < handle
             
             %Interpolate and expnd the spectrum points to their own columns
             if strcmp(id,'Spectro') || strcmp(id,'SpectroJaz')
-                obj.downSample(this.getNrOfOlfactoryDP(),id);
+                obj.downSample(this.getNrOfSpectroDP(),id);
                 obj.inflateSpectrumPoints(id);
             end
             
