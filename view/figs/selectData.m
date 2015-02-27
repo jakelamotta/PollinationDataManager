@@ -22,7 +22,7 @@ function varargout = selectData(varargin)
 
 % Edit the above text to modify the response to help selectData
 
-% Last Modified by GUIDE v2.5 11-Nov-2014 12:17:58
+% Last Modified by GUIDE v2.5 27-Feb-2015 11:51:39
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -72,14 +72,11 @@ userdata.type = id;
 
 if strcmp(id,'Spectro') || strcmp(id,'SpectroJaz')
     userdata.dp = handler.getDataManager().getNrOfSpectroDP();
-    %set(hObject,'UserData',userdata);
-%     setGraph(handles,spectro);
     set(hObject,'UserData',userdata);
     
 setGraph(handles,obj,id);
 elseif strcmp(id,'Olfactory')
     userdata.dp = handler.getDataManager().getNrOfOlfactoryDP();
-    %setOlfGraph(handles,olfactory,type);
     set(hObject,'UserData',userdata);
     
 setGraph(handles,obj,id);
@@ -122,10 +119,13 @@ if get(handles.okBtn,'UserData')
     h = findobj('Tag','sampleedit');
     rate = get(h,'String');
     
-    if strcmp(userdata.type,'Olfactory')
-        data.setInterp(userdata.type,false);
+    out_.interp = false;
+    
+    if strcmpi(userdata.type,'Olfactory')
+        out_.interp = get(handles.cb_interp,'Value');
         handler.getDataManager().setNrOfOlfactoryDP(rate);
     elseif strcmp(userdata.type,'Spectro') || strcmp(userdata.type,'SpectroJaz')
+        out_.interp = get(handles.cb_interp,'Value');
         handler.getDataManager().setNrOfSpectroDP(rate);
     end
     
@@ -310,11 +310,14 @@ function setGraph(h,obs,type)
         set(edit_,'Enable','off');
     end
 
-    button = uicontrol(handle,'Style','pushbutton','Position',[20 190 100 20],'String','Interpolate','Callback',{@downSample,toSend,t,handle,type});
+    button = uicontrol(handle,'Style','pushbutton','Position',[20 190 100 20],'String','Preview interpolation','Callback',{@downSample,toSend,t,handle,type,h});
 end
 
 %%Function for interpolating Spectro and Olfactory data
 function downSample(varargin)
+    handles = varargin{7};
+    set(handles.cb_interp,'Value',true);
+    
     obs = varargin{3};
 
     t = varargin{4};
@@ -435,4 +438,14 @@ function out_ = validateData(obs)
         end
         temp = obs.get(i,2);
     end
+end
+
+
+% --- Executes on button press in cb_interp.
+function cb_interp_Callback(hObject, eventdata, handles)
+% hObject    handle to cb_interp (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of cb_interp
 end

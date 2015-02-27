@@ -394,7 +394,7 @@ classdef GUIHandler < handle
         function this = launchDialogue(this,id,obj)
             out_ = selectData(obj,id,this);
             this = out_.handler;
-            this.getDataManager().finalize(id,obj);
+            this.getDataManager().finalize(id,obj,out_.interp);
         end
     end
 end

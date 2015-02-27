@@ -83,8 +83,9 @@ classdef DataManager < handle
         end
         
         %%
-        function this = finalize(this,id,temp)
+        function this = finalize(this,id,temp,interp)
             current = this.getUnfObject();
+            current.setInterp(id,interp);
             %temp = this.getUnfObject();
             
             tempMat = temp.getMatrix();
