@@ -123,7 +123,7 @@ if get(handles.okBtn,'UserData')
     rate = get(h,'String');
     
     if strcmp(userdata.type,'Olfactory')
-        data.setInterp(userdata.type,false);
+        data.setInterp(userdata.type,get
         handler.getDataManager().setNrOfOlfactoryDP(rate);
     elseif strcmp(userdata.type,'Spectro') || strcmp(userdata.type,'SpectroJaz')
         handler.getDataManager().setNrOfSpectroDP(rate);
@@ -316,7 +316,7 @@ end
 %%Function for interpolating Spectro and Olfactory data
 function downSample(varargin)
     obs = varargin{3};
-
+    
     t = varargin{4};
     hfig = varargin{5};
     type = varargin{6};
@@ -325,8 +325,6 @@ function downSample(varargin)
     h = findobj('Tag','sampleedit');
     rate = get(h,'String');
     dsrate = str2double(rate);
-    
-    obs.setInterp(type,true);
     
     %%Interpolating Spectro data 
     if strcmp(type,'Spectro') || strcmp(type,'SpectroJaz')

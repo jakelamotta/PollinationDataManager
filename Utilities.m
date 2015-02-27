@@ -42,6 +42,7 @@ classdef Utilities
             end
         end
         
+        %%Function for returning
         function monthNr = getMonthFromString(month)
            months = containers.Map({'jan','feb','mar','apr','may','jun','jul',...
                'aug','sep','oct','nov','dec'},{'1','2','3','4','5','6',...

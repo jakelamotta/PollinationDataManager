@@ -1,9 +1,10 @@
 data/*
 test/*
 /config.mat
-!data/behavior_variables.xlsx
+!data/variables.xlsx
 !data/template.xlsx
 !data/weatherPath
+!data/placeholder.txt
 
 # Windows image file caches
 Thumbs.db

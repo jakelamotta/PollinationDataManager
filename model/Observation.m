@@ -9,6 +9,7 @@ classdef Observation < handle
         %the program. 
         xlsMatrix;
         numOfStandardVariables;
+        interpMap;
     end
     
     methods (Access = public)
@@ -16,6 +17,11 @@ classdef Observation < handle
         %%Constructor. Initializes the object
         function this = Observation(varargin)
             global matrixColumns;
+            this.interpMap = containers.Map();
+            this.interpMap('Spectro') = false;
+            this.interpMap('SpectroJaz') = false;
+            this.interpMap('Olfactory') = false;
+            
             if isempty(varargin)
                 this.xlsMatrix = [matrixColumns,{'lux_flower','lux_up','SpectroX','SpectroY','SpectroXUp','SpectroYUp','OlfX','OlfY'}];
                 this.numOfStandardVariables = uint32(Constants.StandardVarsPos);
@@ -248,12 +254,18 @@ classdef Observation < handle
                     y1 = matrix{i,y1pos};
                     x1 = matrix{i,x1newpos};
                     
-                    x1new = linspace(min(x1),max(x1),dsrate);
+                    if this.getInterp('id')                    
+                        x1new = linspace(min(x1),max(x1),dsrate);
                     
-                    y1 = interp1(x1,y1,x1new);
+                        y1 = interp1(x1,y1,x1new);
                     
-                    matrix{i,y1pos} = y1;
-                    matrix{i,x1newpos} = x1new;
+                        matrix{i,y1pos} = y1;
+                        matrix{i,x1newpos} = x1new;
+                    else
+                       matrix{i,y1pos} = y1(1:dsrate);
+                       matrix{i,x1newpos} = x1(1:dsrate);
+                       a = 1;
+                    end
                 end
             end
             this.setMatrix(matrix);
@@ -264,7 +276,7 @@ classdef Observation < handle
             matrix = this.getMatrix();
             height = this.getNumRows();
             
-            if strcmp(type,'Spectro')
+            if strcmpi(type,'Spectro')
                 spectroXpos = uint32(Constants.SpectroXPos);
                 spectroXuppos = uint32(Constants.SpectroXUpPos);
                 
@@ -291,7 +303,7 @@ classdef Observation < handle
                     end
                 end
                 
-            elseif strcmp(type,'SpectroJaz')
+            elseif strcmpi(type,'SpectroJaz')
                 spectroXpos = uint32(Constants.SpectroXPos);
                 
                 y1 = matrix{2,spectroXpos};
@@ -307,7 +319,7 @@ classdef Observation < handle
                     end
                 end
                 
-            elseif strcmp(type,'olfactory')
+            elseif strcmpi(type,'Olfactory')
                 y1 = matrix{2,uint32(Constants.OlfXPos)};                
                 appendee = cell(height,length(y1));
                 
@@ -541,6 +553,17 @@ classdef Observation < handle
         function comment = getCommentFromId(this,id)
            row = this.getRowFromID(id);
            comment = row{2,4};
+        end
+        
+        function interp = getInterp(this,id)
+            interp = false;
+            if isKey(this.interpMap,id)
+                interp = this.interpMap(id);                    
+            end
+        end
+        
+        function setInterp(this,id,bool)
+           this.interpMap(id) = bool; 
         end
     end
 end
