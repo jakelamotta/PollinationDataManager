@@ -60,6 +60,7 @@ classdef SpectroJazDataAdapter < DataAdapter
                 obs.setObservation(this.tempMatrix,id_);
                 this.tempMatrix = this.init;
             end
+            
             close(this.mWaitbar);
         end
         

@@ -8,8 +8,8 @@ classdef SpectroJazDataAdapter < DataAdapter
     
     methods (Access = public)
         
-        function this = SpectroJazAdapter()
-           this.init = {'lux_flower','lux_up','SpectroX','SpectroY','SpectroXUp','SpectroYUp','/SpectroTime'};
+        function this = SpectroJazDataAdapter()
+           this.init = {'SpectroX','SpectroY'};
            this.tempMatrix = this.init;
         end
         
@@ -53,13 +53,14 @@ classdef SpectroJazDataAdapter < DataAdapter
                 w = cellfun(@str2double,W,'UniformOutput',false);
                 s = cellfun(@str2double,S,'UniformOutput',false);
 
-                this.tempMatrix{2,3} = [w{1:end-1}];
-                this.tempMatrix{2,4} = [s{1:end-1}];
+                this.tempMatrix{2,1} = [w{1:end-1}];
+                this.tempMatrix{2,2} = [s{1:end-1}];
 
                 this.tempMatrix = this.addValues(path_);
                 obs.setObservation(this.tempMatrix,id_);
                 this.tempMatrix = this.init;
             end
+            close(this.mWaitbar);
         end
         
     end

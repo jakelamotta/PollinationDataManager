@@ -35,28 +35,29 @@ classdef Observation < handle
         %ids but simply appends the rows from the input observation to the
         %to the current
         function this = appendObservation(this,obj)
-            matrix = obj.getMatrix();
-            [this.xlsMatrix,matrix] = Utilities.padMatrix(this.xlsMatrix,matrix);
-            this.setMatrix([this.xlsMatrix;matrix(2:end,:)]);
+%             matrix = obj.getMatrix();
+%             [this.xlsMatrix,matrix] = Utilities.padMatrix(this.xlsMatrix,matrix);
+%             this.setMatrix([this.xlsMatrix;matrix(2:end,:)]);
+            this.mapColumns(obj)
         end
-%         
-%         function this = mapColumns(this,newObs)
-%             matrix = this.getMatrix();
-%             if this.getWidth() < newObs.getWidth()
-%                 matrix = [matrix,cell(this.getNumRows(),newObs.getWidth()-this.getWidth())];
-%             newMat = cell(newObs.getNumRows()-1,width);
-%             end
-%             for i=10:min(this.getWidth(),newObs.getWidth())
-%                 if strcmp(this.get(1,i),newObs.get(1,i))
-%                     newMat(1:end,i) = newObs.getSection(2,newObs.getNumRows(),i,i); 
-%                     ends
-%             end
-%             
-%             
-%             matrix = [matrix;newMat];
-%             this.setMatrix(matrix);
-%         end
-%         
+        
+        function this = mapColumns(this,newObs)
+            matrix = this.getMatrix();
+            if this.getWidth() < newObs.getWidth()
+                matrix = [matrix,cell(this.getNumRows(),newObs.getWidth()-this.getWidth())];
+            newMat = cell(newObs.getNumRows()-1,width);
+            
+            for i=10:min(this.getWidth(),newObs.getWidth())
+                if strcmp(this.get(1,i),newObs.get(1,i))
+                    newMat(1:end,i) = newObs.getSection(2,newObs.getNumRows(),i,i); 
+                end
+            end
+            
+            
+            matrix = [matrix;newMat];
+            this.setMatrix(matrix);
+        end
+        
         %%Function for removing NaN from cells in the cell containing all
         %%the data
         function this = removeNaN(this)

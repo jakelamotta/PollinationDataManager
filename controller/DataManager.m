@@ -107,7 +107,8 @@ classdef DataManager < handle
                 current.setMatrix(tempMat2);
             end
             
-            newMat = [current.getMatrix();tempMat(2:h_new,:)];
+            newMat = [current.getMatrix();
+            tempMat(2:h_new,:)];
             current = current.setMatrix(newMat);
             
             if (current.getWidth()*current.getNumRows()) > this.sizeLimit
