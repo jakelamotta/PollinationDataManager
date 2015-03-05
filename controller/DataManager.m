@@ -95,9 +95,10 @@ classdef DataManager < handle
             [h_new,w_new] = size(tempMat);
             [h_old,w_old] = size(this.getObservation().getMatrix());
             
-            diff = w_old-w_new;
+            %diff = w_old-w_new;
+            diff = w_new-w_old;
             
-            if diff > 0
+            if false
                 padding = cell(h_new,diff);
                 tempMat = [tempMat,padding];
                 

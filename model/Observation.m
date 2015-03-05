@@ -35,28 +35,37 @@ classdef Observation < handle
         %ids but simply appends the rows from the input observation to the
         %to the current
         function this = appendObservation(this,obj)
-            matrix = obj.getMatrix();
-            [this.xlsMatrix,matrix] = Utilities.padMatrix(this.xlsMatrix,matrix);
-            this.setMatrix([this.xlsMatrix;matrix(2:end,:)]);
+%             matrix = obj.getMatrix();
+%             [this.xlsMatrix,matrix] = Utilities.padMatrix(this.xlsMatrix,matrix);
+%             this.setMatrix([this.xlsMatrix;matrix(2:end,:)]);
+            global nrOfStandardColumns;
+            nrOfStandardColumns = nrOfStandardColumns + 8;
+            diff = obj.getWidth() - this.getWidth();
+            if  diff > 0 && diff ~= 8
+                existingExtraColumns = this.getWidth()-nrOfStandardColumns;
+                addedColumns = obj.getWidth()-nrOfStandardColumns;
+                existingMatrix = this.getMatrix();
+                
+                existingMatrix = [existingMatrix,cell(this.getNumRows(),addedColumns)];
+                
+                newColumns = obj.getSection(1,obj.getNumRows(),nrOfStandardColumns+1,obj.getWidth());
+                inputMatrix = obj.getSection(1,obj.getNumRows(),1,nrOfStandardColumns);
+                padMatrix = [this.xlsMatrix(1,nrOfStandardColumns+1:...
+                    nrOfStandardColumns+existingExtraColumns);cell(obj.getNumRows()-1,existingExtraColumns)];
+                
+                paddedInputMatrix = [inputMatrix,padMatrix,newColumns];
+                
+                finalMatrix = [paddedInputMatrix;existingMatrix(2:end,:)];
+                this.setMatrix(finalMatrix);
+            else
+                matrix = obj.getMatrix();
+               [this.xlsMatrix,matrix] = Utilities.padMatrix(this.xlsMatrix,matrix);
+                this.setMatrix([this.xlsMatrix;matrix(2:end,:)]);
+            end
+
+            
         end
-%         
-%         function this = mapColumns(this,newObs)
-%             matrix = this.getMatrix();
-%             if this.getWidth() < newObs.getWidth()
-%                 matrix = [matrix,cell(this.getNumRows(),newObs.getWidth()-this.getWidth())];
-%             newMat = cell(newObs.getNumRows()-1,width);
-%             end
-%             for i=10:min(this.getWidth(),newObs.getWidth())
-%                 if strcmp(this.get(1,i),newObs.get(1,i))
-%                     newMat(1:end,i) = newObs.getSection(2,newObs.getNumRows(),i,i); 
-%                     ends
-%             end
-%             
-%             
-%             matrix = [matrix;newMat];
-%             this.setMatrix(matrix);
-%         end
-%         
+        
         %%Function for removing NaN from cells in the cell containing all
         %%the data
         function this = removeNaN(this)
@@ -161,9 +170,9 @@ classdef Observation < handle
         %%are stored in arrays in the cell. These arrays need to be removed
         %%before the Observation can be displayed in a table
         function this = removeArrays(this)
-            matrix = this.getMatrix();
-            matrix = [matrix(:,1:uint32(Constants.SpectroXPos)-1),matrix(:,uint32(Constants.OlfYPos)+1:end)];
-            this.setMatrix(matrix);
+            %matrix = this.getMatrix();
+            %matrix = [matrix(:,1:uint32(Constants.SpectroXPos)-1),matrix(:,uint32(Constants.OlfYPos)+1:end)];
+            %this.setMatrix(matrix);
         end
         
         %%Calculate average for the input rows starting from column
@@ -253,7 +262,7 @@ classdef Observation < handle
                     y1 = matrix{i,y1pos};
                     x1 = matrix{i,x1newpos};
                     
-                    x1new = round(linspace(380,600,dsrate));
+                    x1new = round(linspace(190,600,dsrate));
                     
                     y1 = interp1(x1,y1,x1new);
                     
@@ -266,8 +275,6 @@ classdef Observation < handle
                 x1newpos = uint32(Constants.OlfXPos);
                 
                 for i=2:height
-                    
-                    
                     y1 = matrix{i,y1pos};
                     x1 = matrix{i,x1newpos};
                     

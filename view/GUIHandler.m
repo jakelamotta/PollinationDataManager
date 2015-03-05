@@ -203,6 +203,8 @@ classdef GUIHandler < handle
                 this.displayData = obj.getMatrix();
             end
             
+            this.displayData = [this.displayData(:,1:uint32(Constants.SpectroXPos)-1),this.displayData(:,uint32(Constants.OlfYPos)+1:end)];
+            
             set(this.dataTable,'Data',this.displayData);
             drawnow();
         end
