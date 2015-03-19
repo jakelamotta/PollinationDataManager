@@ -14,7 +14,7 @@ classdef SpectroDataAdapter < DataAdapter
     methods (Access = public)
         
         function this = SpectroDataAdapter()
-            this.init = {'lux_flower','lux_up','SpectroX','SpectroY','SpectroXUp','SpectroYUp','/SpectroTime'};
+            this.init = {'lux_flower','lux_up','/SpectroX','/SpectroY','/SpectroXUp','/SpectroYUp','/SpectroTime'};
             this.tempMatrix = this.init;
             this.obs = Observation();
         end

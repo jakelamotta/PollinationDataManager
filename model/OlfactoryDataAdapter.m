@@ -10,7 +10,7 @@ classdef OlfactoryDataAdapter < DataAdapter
         
         function this = OlfactoryDataAdapter()
             this.dobj = Observation();
-            this.initMatrix = {'OlfX','OlfY'};
+            this.initMatrix = {'/OlfX','/OlfY'};
             this.tempMatrix = this.initMatrix;
         end
         

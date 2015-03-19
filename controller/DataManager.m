@@ -83,9 +83,14 @@ classdef DataManager < handle
         end
         
         %%
-        function this = finalize(this,id,temp,interp)
+        function this = finalize(this,type_,temp,varargin)
             current = this.getUnfObject();
-            current.setInterp(id,interp);
+            
+            if ~isempty(varargin)
+                interp = varargin{1};
+                current.setInterp(type_,interp);
+            end
+            
             %temp = this.getUnfObject();
             
             tempMat = temp.getMatrix();
@@ -96,19 +101,18 @@ classdef DataManager < handle
             [h_old,w_old] = size(this.getObservation().getMatrix());
             
             diff = w_old-w_new;
+%             
+%             if diff > 0
+%                 padding = cell(h_new,diff);
+%                 tempMat = [tempMat,padding];
+%                 
+%                 tempMat2 = this.getObservation().getMatrix();
+%                 tempMat2 = tempMat2(1,:);
+%                 
+%                 current.setMatrix(tempMat2);
+%             end
             
-            if diff > 0
-                padding = cell(h_new,diff);
-                tempMat = [tempMat,padding];
-                
-                tempMat2 = this.getObservation().getMatrix();
-                tempMat2 = tempMat2(1,:);
-                
-                current.setMatrix(tempMat2);
-            end
-            
-            newMat = [current.getMatrix();
-            tempMat(2:h_new,:)];
+            newMat = [current.getMatrix();tempMat(2:h_new,:)];
             current = current.setMatrix(newMat);
             
             if (current.getWidth()*current.getNumRows()) > this.sizeLimit
@@ -122,14 +126,14 @@ classdef DataManager < handle
             obj = this.stripFirstColumn(obj);
             
             %Interpolate and expnd the spectrum points to their own columns
-            if strcmp(id,'Spectro') || strcmp(id,'SpectroJaz')
-                obj.downSample(this.getNrOfSpectroDP(),id);
-                obj.inflateSpectrumPoints(id);
+            if strcmp(type_,'Spectro') || strcmp(type_,'SpectroJaz')
+                obj.downSample(this.getNrOfSpectroDP(),type_);
+                obj.inflateSpectrumPoints(type_);
             end
             
-            if strcmp(id,'Olfactory')
-                obj.downSample(this.getNrOfOlfactoryDP(),id);
-                obj.inflateSpectrumPoints(id);
+            if strcmp(type_,'Olfactory')
+                obj.downSample(this.getNrOfOlfactoryDP(),type_);
+                obj.inflateSpectrumPoints(type_);
             end
             
             %Remove the temporary columns for storing the arrays which
@@ -162,14 +166,14 @@ classdef DataManager < handle
             %%If there are an observation that already exist, these rows
             %%need to be combined
             if ~isempty(listOfIds{1,1})
-                this.getObservation().appendObservation(this.getUnfObject());
+                this.getObservation().appendObservation(this.getUnfObject(),type_);
                 
                 for i=1:length(listOfIds)
                     id = listOfIds{1,i};
                     this.getObservation().combine(id);
                 end
             else
-                this.merge();
+                this.merge(type_);
             end
             
             this = this.setUnfObject(Observation());
@@ -183,10 +187,10 @@ classdef DataManager < handle
         end
         
         %%Merge to observations that have no common observation ids
-        function this = merge(this)
+        function this = merge(this,type_)
             unfObj = this.getUnfObject();
             fobj = this.getObservation();
-            fobj.appendObservation(unfObj);
+            fobj.appendObservation(unfObj,type_);
             this.setObservation(fobj);
         end
         

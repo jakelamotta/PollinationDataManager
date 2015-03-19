@@ -4,12 +4,40 @@ classdef Observation < handle
     %cells do not contain numbers. This matrix is what is going to be
     %written to the final excel-file.
     
+    %This class is a mess, there is a of boilerplate code due to lack of time to
+    %factorize methods.
+    
     properties (Access = private)
         %The xlsMatrix is what hold all data when it has been loaded in to
-        %the program. 
+        %the program.
         xlsMatrix;
         numOfStandardVariables;
         interpMap;
+        
+        spectroStart;
+        spectroEnd;
+        
+        spectroJazStart;
+        spectroJazEnd;
+        
+        olfStart;
+        olfEnd;
+        
+        originWidth;
+    end
+    
+    methods (Static)
+        
+        function [a,b] = padMatrix(originWidth,matA,matB)
+            [h1,w1] = size(matA);
+            [h2,w2] = size(matB);
+            padWidth1 = w2-originWidth;
+            padWidth2 = w1-originWidth;
+            
+            a = [matA,cell(h1,padWidth1)];
+            b = [matB(:,1:originWidth),cell(h2,padWidth2),matB(:,originWidth+1:end)];
+        end
+        
     end
     
     methods (Access = public)
@@ -22,52 +50,100 @@ classdef Observation < handle
             this.interpMap('SpectroJaz') = false;
             this.interpMap('Olfactory') = false;
             
+            this.spectroStart = -1;
+            this.spectroEnd = -1;
+            
+            this.spectroJazStart = -1;
+            this.spectroJazEnd = -1;
+            
+            this.olfStart = -1;
+            this.olfEnd = -1;
+            
+            
             if isempty(varargin)
-                this.xlsMatrix = [matrixColumns,{'lux_flower','lux_up','SpectroX','SpectroY','SpectroXUp','SpectroYUp','OlfX','OlfY'}];
+                this.xlsMatrix = [matrixColumns,{'lux_flower','lux_up','/SpectroX','/SpectroY','/SpectroXUp','/SpectroYUp','/OlfX','/OlfY'}];
                 this.numOfStandardVariables = uint32(Constants.StandardVarsPos);
             else
                 this.xlsMatrix = varargin{1};
                 this.numOfStandardVariables = varargin{2};
+            end
+            
+            [h,this.originWidth] = size(this.xlsMatrix);
+        end
+        
+        function row1 = mergeRows(this,row1,row2)
+            for i=1:length(row1)
+                if isempty(row1{i})
+                    row1{i} = row2{i};
+                end
+           end
+        end
+        
+        function [start,end_] = placeDynamicData(this,obj,start,end_)
+            if start == -1
+                            matrix = obj.getMatrix();
+                            start = this.getWidth()+1;
+                            [this.xlsMatrix,matrix] = Observation.padMatrix(this.originWidth,...
+                                this.xlsMatrix,matrix);
+                            this.setMatrix([this.mergeRows(this.xlsMatrix(1,:),matrix(1,:));...
+                                this.xlsMatrix(2:end,:);matrix(2:end,:)]);
+                            end_ = this.getWidth();
+                        else
+                            insertSection = obj.getSection(1,obj.getNumRows(),...
+                                obj.originWidth+1,obj.getWidth());
+                            
+                            inMatrix = obj.getSection(1,obj.getNumRows(),1,obj.originWidth);
+                            diff = this.getWidth()-obj.getWidth();
+                            
+                            [h,w] = size(insertSection);
+                            
+                            matrix = [inMatrix,cell(obj.getNumRows(),diff+w)];
+                            matrix(1:end,start:end_) = insertSection;
+                            
+                            this.setMatrix([this.xlsMatrix;matrix(2:end,:)]);
             end
         end
         
         %%Adding an observation to another, it doesnt consider copies or
         %ids but simply appends the rows from the input observation to the
         %to the current
-        function this = appendObservation(this,obj)
-%             matrix = obj.getMatrix();
-%             [this.xlsMatrix,matrix] = Utilities.padMatrix(this.xlsMatrix,matrix);
-%             this.setMatrix([this.xlsMatrix;matrix(2:end,:)]);
-            this.mapColumns(obj)
-        end
-        
-        function this = mapColumns(this,newObs)
-            matrix = this.getMatrix();
-            if this.getWidth() < newObs.getWidth()
-                matrix = [matrix,cell(this.getNumRows(),newObs.getWidth()-this.getWidth())];
-            newMat = cell(newObs.getNumRows()-1,width);
+        function this = appendObservation(this,obj,varargin)
             
-            for i=10:min(this.getWidth(),newObs.getWidth())
-                if strcmp(this.get(1,i),newObs.get(1,i))
-                    newMat(1:end,i) = newObs.getSection(2,newObs.getNumRows(),i,i); 
+            
+            if isempty(varargin)
+                matrix = obj.getMatrix();
+                [this.xlsMatrix,matrix] = Utilities.padMatrix(this.xlsMatrix,matrix);
+                this.setMatrix([this.xlsMatrix;matrix(2:end,:)]);
+            else
+                type = varargin{1};
+                switch(type)
+                    case 'Spectro'
+                        [this.spectroStart,this.spectroEnd] = this.placeDynamicData(obj,...
+                            this.spectroStart,this.spectroEnd);
+                    case 'SpectroJaz'
+                        [this.spectroJazStart,this.spectroJazEnd] = this.placeDynamicData(obj,...
+                            this.spectroJazStart,this.spectroJazEnd);
+                    case 'Olfactory'
+                        [this.olfStart,this.olfEnd] = this.placeDynamicData(obj,...
+                            this.olfStart,this.olfEnd);
+                    otherwise
+                        matrix = obj.getMatrix();
+                        [this.xlsMatrix,matrix] = Utilities.padMatrix(this.xlsMatrix,matrix);
+                        this.setMatrix([this.xlsMatrix;matrix(2:end,:)]);
                 end
             end
-            
-            
-            matrix = [matrix;newMat];
-            this.setMatrix(matrix);
         end
         
         %%Function for removing NaN from cells in the cell containing all
         %%the data
         function this = removeNaN(this)
-           for h=2:this.getNumRows()
-               for w=1:this.getWidth()
-                   if isnan(this.get(h,w))
-                       this.set(h,w,[]);
-                   end
-               end
-           end
+            for h=2:this.getNumRows()
+                for w=1:this.getWidth()
+                    if isnan(this.get(h,w))
+                        this.set(h,w,[]);
+                    end
+                end
+            end
         end
         
         %%Adds zeroes to any empty cell in the Observation cell array
@@ -163,7 +239,14 @@ classdef Observation < handle
         %%before the Observation can be displayed in a table
         function this = removeArrays(this)
             matrix = this.getMatrix();
-            matrix = [matrix(:,1:uint32(Constants.SpectroXPos)-1),matrix(:,uint32(Constants.OlfYPos)+1:end)];
+            %             matrix = [matrix(:,1:uint32(Constants.SpectroXPos)-1),matrix(:,uint32(Constants.OlfYPos)+1:end)];
+            matrix(2:end,uint32(Constants.SpectroXPos)) = cell(this.getNumRows()-1,1);
+            matrix(2:end,uint32(Constants.SpectroYPos)) = cell(this.getNumRows()-1,1);
+            matrix(2:end,uint32(Constants.SpectroXUpPos)) = cell(this.getNumRows()-1,1);
+            matrix(2:end,uint32(Constants.SpectroYUpPos)) = cell(this.getNumRows()-1,1);
+            matrix(2:end,uint32(Constants.OlfXPos)) = cell(this.getNumRows()-1,1);
+            matrix(2:end,uint32(Constants.OlfYPos)) = cell(this.getNumRows()-1,1);
+            
             this.setMatrix(matrix);
         end
         
@@ -183,12 +266,12 @@ classdef Observation < handle
                 temp = 0;
                 counter = 0;
                 
-                for j=1:h                    
+                for j=1:h
                     if isnumeric(rows{j,i})
                         if ~isempty(rows{j,i})
-                                temp = temp+rows{j,i};
-                                counter = counter+1;
-                        end                        
+                            temp = temp+rows{j,i};
+                            counter = counter+1;
+                        end
                     else
                         if ~isnan(str2double(rows{j,i}))
                             v = str2double(rows{j,i});
@@ -212,7 +295,7 @@ classdef Observation < handle
                 else
                     row{i} = temp;
                 end
-            end            
+            end
         end
         
         %%Interpolating spectrophotometer or olfactory data
@@ -272,16 +355,16 @@ classdef Observation < handle
                     y1 = matrix{i,y1pos};
                     x1 = matrix{i,x1newpos};
                     
-                    if this.getInterp(type)   
+                    if this.getInterp(type)
                         x1new = linspace(min(x1),max(x1),dsrate);
-                    
+                        
                         y1 = interp1(x1,y1,x1new);
-                    
+                        
                         matrix{i,y1pos} = y1;
                         matrix{i,x1newpos} = x1new;
                     else
-                       matrix{i,y1pos} = y1(1:dsrate);
-                       matrix{i,x1newpos} = x1(1:dsrate);
+                        matrix{i,y1pos} = y1(1:dsrate);
+                        matrix{i,x1newpos} = x1(1:dsrate);
                     end
                 end
             end
@@ -342,7 +425,7 @@ classdef Observation < handle
                 end
                 
             elseif strcmpi(type,'Olfactory')
-                y1 = matrix{2,uint32(Constants.OlfXPos)};                
+                y1 = matrix{2,uint32(Constants.OlfXPos)};
                 appendee = cell(height,length(y1));
                 
                 for j=2:height
@@ -371,7 +454,7 @@ classdef Observation < handle
             matrix = [topRow;data];
             this.setMatrix(matrix);
         end
-                
+        
         %%Function for merging a row
         function this = combine(this,id)
             mergeObs = Observation();
@@ -414,7 +497,7 @@ classdef Observation < handle
                 end
             end
         end
-                
+        
         %%Function that deletes a single row corresponding to the input ID
         function this = deleteRowFromID(this,id)
             mat = this.getMatrix();
@@ -527,18 +610,18 @@ classdef Observation < handle
             this.xlsMatrix{h,w} = value;
         end
         
-            function this = setSection(this,h1,h2,w1,w2,section)
-                this.xlsMatrix(h1:h2,w1:w2) = section;
-            end
+        function this = setSection(this,h1,h2,w1,w2,section)
+            this.xlsMatrix(h1:h2,w1:w2) = section;
+        end
         
         function section = getSection(this,h1,h2,w1,w2)
-           %if length(varargin) == 4
-%                h1 = varargin{1};
-%                h2= varargin{2};
-%                w1= varargin{3};
-%                w2 = varargin{4};
-               section = this.xlsMatrix(h1:h2,w1:w2);
-           %end
+            %if length(varargin) == 4
+            %                h1 = varargin{1};
+            %                h2= varargin{2};
+            %                w1= varargin{3};
+            %                w2 = varargin{4};
+            section = this.xlsMatrix(h1:h2,w1:w2);
+            %end
         end
         
         function row = getRowFromID(this,id)
@@ -567,7 +650,7 @@ classdef Observation < handle
         end
         
         function id = getIdAtRow(this,r)
-           id = this.xlsMatrix{r,2};
+            id = this.xlsMatrix{r,2};
         end
         
         function this = setID(this,id)
@@ -576,19 +659,20 @@ classdef Observation < handle
         end
         
         function comment = getCommentFromId(this,id)
-           row = this.getRowFromID(id);
-           comment = row{2,4};
+            row = this.getRowFromID(id);
+            comment = row{2,4};
         end
         
         function interp = getInterp(this,id)
             interp = false;
             if isKey(this.interpMap,id)
-                interp = this.interpMap(id);                    
+                interp = this.interpMap(id);
             end
         end
         
         function setInterp(this,id,bool)
-           this.interpMap(id) = bool; 
+            this.interpMap(id) = bool;
         end
     end
+    
 end

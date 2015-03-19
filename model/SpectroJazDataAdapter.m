@@ -9,7 +9,7 @@ classdef SpectroJazDataAdapter < DataAdapter
     methods (Access = public)
         
         function this = SpectroJazDataAdapter()
-           this.init = {'SpectroX','SpectroY'};
+           this.init = {'/SpectroX','/SpectroY'};
            this.tempMatrix = this.init;
         end
         
