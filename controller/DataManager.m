@@ -12,8 +12,9 @@ classdef DataManager < handle
         unfilteredObs;
         spectroDP; %Number of data points used for interpolation of Spectro data
         olfactoryDP; %Number of data points used for interpolation of Olfactory data
+        spectroJazDP;
         handler; %GUIhandler object
-        sizeLimit;
+        sizeLimit;        
     end
     
     %Public methods, accessible from other classes
@@ -47,7 +48,8 @@ classdef DataManager < handle
             
             %Initializes to 300 and 15000 respectively, once its set after this its final to not
             %create inconcistensies between observations
-            this.spectroDP = 221;
+            this.spectroDP = uint32(Constants.SpectroDP);
+            this.spectroJazDP = uint32(Constants.SpectroJazDP);
             this.olfactoryDP = 15000;
         end
         
@@ -236,14 +238,29 @@ classdef DataManager < handle
             dp = this.olfactoryDP;
         end
         
+        function dp = getNrOfSpectroJazDP(this)
+            dp = this.spectroJazDP;
+        end
+        
         function this = setNrOfOlfactoryDP(this,dp)
             %The value can only be changed once, from it's original value            
             if ischar(dp)
                 dp = str2double(dp);
             end
             
-            if this.olfactoryDP == 15000
+            if this.olfactoryDP == 15000;
                 this.olfactoryDP = dp;
+            end
+        end
+        
+        function this = setNrOfSpectroJazDP(this,dp)
+            %The value can only be changed once, from it's original value            
+            if ischar(dp)
+                dp = str2double(dp);
+            end
+            
+            if this.spectroJazDP == uint32(Constants.SpectroJazDP);
+                this.spectroJazDP = dp;
             end
         end
         
@@ -254,7 +271,7 @@ classdef DataManager < handle
             
             if isnumeric(dp) && ~isempty(dp)
                 %The value can only be changed once, from it's original value
-                if this.spectroDP == 220
+                if this.spectroDP == uint32(Constants.SpectroDP);
                     this.spectroDP = dp;
                 end
             end

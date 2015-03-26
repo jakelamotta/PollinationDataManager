@@ -22,7 +22,7 @@ function varargout = loaddatastep2(varargin)
 
 % Edit the above text to modify the response to help loaddatastep2
 
-% Last Modified by GUIDE v2.5 24-Feb-2015 15:41:39
+% Last Modified by GUIDE v2.5 26-Mar-2015 11:58:07
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -147,17 +147,17 @@ delete(handles.figure1);
 
 
 function edit1_Callback(hObject, eventdata, handles)
-% hObject    handle to edit1 (see GCBO)
+% hObject    handle to editLux1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of edit1 as text
-%        str2double(get(hObject,'String')) returns contents of edit1 as a double
+% Hints: get(hObject,'String') returns contents of editLux1 as text
+%        str2double(get(hObject,'String')) returns contents of editLux1 as a double
 
 
 % --- Executes during object creation, after setting all properties.
 function edit1_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit1 (see GCBO)
+% hObject    handle to editLux1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -216,7 +216,7 @@ function okBtn_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
     varargout{1}.sources = get(handles.output,'UserData');
-    id_ = get(handles.edit1,'String');
+    id_ = get(handles.editLux1,'String');
     
     stringsExist = ~isempty(id_);
 
@@ -239,6 +239,11 @@ function cancelBtn_Callback(hObject, eventdata, handles)
     
 function updateSource(handles,type,varargin)
 
+    if strcmp(type,'USpectroJaz') || strcmp(type,'FSpectroJaz')
+    	prefix = type(1);
+        type = type(2:end);
+    end
+
     tempStruct = get(handles.output,'UserData');
     
     if ~isempty(varargin)
@@ -249,7 +254,6 @@ function updateSource(handles,type,varargin)
             numFieldNames = fieldnames(source);
             numFieldNames = size(numFieldNames);
             numFieldNames = numFieldNames(1);
-
         else
             source = struct;
             numFieldNames = 0;
@@ -262,7 +266,7 @@ function updateSource(handles,type,varargin)
         
         [p,fname,ext] = fileparts(fname);
         fname = [fname,ext];%'template.xlsx';        
-    else
+    else 
         if strcmp(type,'Spectro')
             pname = uigetdir(Utilities.getpath(''));
             fname = '';
@@ -288,6 +292,11 @@ function updateSource(handles,type,varargin)
 
             for i=1:size_(2)
                 temp = fname{1,i};
+                
+                if strcmp(type,'SpectroJaz')
+                   temp = [prefix,temp];
+                end
+                
                 source.(['path',num2str(i+numFieldNames)]) = [pname,temp];
             end
         end
@@ -354,4 +363,64 @@ function pushbutton11_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton11 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    updateSource(handles,'SpectroJaz');
+    %updateSource(handles,'SpectroJaz');
+    fileID = fopen(Utilities.getpath('lux.txt'),'w');
+    fprintf(fileID,[get(handles.editLux1,'String'),'-']);
+    fprintf(fileID,get(handles.editLux2,'String'));
+    fclose(fileID);
+    updateSource(handles,'SpectroJaz',Utilities.getpath('lux.txt'));
+    updateSource(handles,'FSpectroJaz');
+
+
+
+function editLux1_Callback(hObject, eventdata, handles)
+% hObject    handle to editLux1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of editLux1 as text
+%        str2double(get(hObject,'String')) returns contents of editLux1 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function editLux1_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to editLux1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function editLux2_Callback(hObject, eventdata, handles)
+% hObject    handle to editLux2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of editLux2 as text
+%        str2double(get(hObject,'String')) returns contents of editLux2 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function editLux2_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to editLux2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in pushbutton12.
+function pushbutton12_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton12 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    updateSource(handles,'USpectroJaz');

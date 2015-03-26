@@ -24,6 +24,15 @@ classdef Constants < uint32
        %%Column position of Olfactory arrays
        OlfXPos (53)
        OlfYPos (54)
+       
+       %%Spectro
+       SpectroJazStart (200)
+       SpectroJazEnd (800)
+       SpectroJazDP (601)
+       
+       SpectroStart (380)
+       SpectroEnd (600)
+       SpectroDP (221)
     end
 end
 

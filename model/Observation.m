@@ -253,7 +253,7 @@ classdef Observation < handle
                     y1 = matrix{i,y1pos};
                     x1 = matrix{i,x1newpos};
                     
-                    x1new = round(linspace(380,600,dsrate));
+                    x1new = linspace(200,800,dsrate);
                     
                     y1 = interp1(x1,y1,x1new);
                     
@@ -272,12 +272,12 @@ classdef Observation < handle
                     x1 = matrix{i,x1newpos};
                     
                     if this.getInterp(type)   
-                        x1new = linspace(min(x1),max(x1),dsrate);
+                       x1new = linspace(min(x1),max(x1),dsrate);
                     
-                        y1 = interp1(x1,y1,x1new);
+                       y1 = interp1(x1,y1,x1new);
                     
-                        matrix{i,y1pos} = y1;
-                        matrix{i,x1newpos} = x1new;
+                       matrix{i,y1pos} = y1;
+                       matrix{i,x1newpos} = x1new;
                     else
                        matrix{i,y1pos} = y1(1:dsrate);
                        matrix{i,x1newpos} = x1(1:dsrate);
@@ -350,6 +350,7 @@ classdef Observation < handle
                     x1 = row{uint32(Constants.OlfYPos)};
                     
                     for k=1:length(x1)
+                        
                         if j==2
                             appendee{1,k} = y1(k);
                         end
