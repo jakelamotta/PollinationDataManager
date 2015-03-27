@@ -289,8 +289,10 @@ function setGraph(h,obs,type)
     userdata = get(handle,'UserData');
     handler = userdata.handler;
 
-    if strcmp(userdata.type,'Spectro') || strcmp(userdata.type,'SpectroJaz')
+    if strcmp(userdata.type,'Spectro') 
         dp = handler.getDataManager().getNrOfSpectroDP();
+    elseif strcmp(userdata.type,'SpectroJaz')
+        dp = handler.getDataManager().getNrOfSpectroJazDP();
     else
         dp = handler.getDataManager().getNrOfOlfactoryDP();
     end
@@ -302,10 +304,14 @@ function setGraph(h,obs,type)
         dp = str2double(dp);
     end
     
-    if dp ~= 221 && strcmp(userdata.type,'Spectro') && strcmp(userdata.type,'SpectroJaz')
+    if dp ~= uint32(Constants.SpectroJazDP) && strcmp(userdata.type,'SpectroJaz')
         set(edit_,'Enable','off');
     end
 
+    if dp ~= uint32(Constants.SpectroDP) && strcmp(userdata.type,'Spectro')
+        set(edit_,'Enable','off');
+    end
+    
     if dp ~= 15000 && strcmp(userdata.type,'Olfactory')
         set(edit_,'Enable','off');
     end
@@ -332,7 +338,7 @@ function downSample(varargin)
     obs.setInterp(type,true);
     
     %%Interpolating Spectro data 
-    if strcmp(type,'Spectro') || strcmp(type,'SpectroJaz')
+    if strcmp(type,'Spectro')
         for i=2:height
             y1 = obs.get(i,uint32(Constants.SpectroYPos));
             x1 = obs.get(i,uint32(Constants.SpectroXPos));
@@ -347,6 +353,42 @@ function downSample(varargin)
             
             try
                 x2new = round(linspace(380,600,dsrate));
+            catch e
+            end
+            
+            y1 = interp1(x1,y1,x1new);
+            
+            try
+                y2 = interp1(x2,y2,x2new);
+            catch e
+            end
+            
+            plot(t,x1,obs.get(i,uint32(Constants.SpectroYPos)),'g');
+            hold on
+            plot(t,x1new,y1,'r');
+            
+            try
+                plot(t,x2,obs.get(i,uint32(Constants.SpectroYUpPos)),'g');
+                plot(t,x2new,y2,'b');
+            catch e
+            end
+        end
+       
+    elseif  strcmp(type,'SpectroJaz')
+        for i=2:height
+            y1 = obs.get(i,uint32(Constants.SpectroYPos));
+            x1 = obs.get(i,uint32(Constants.SpectroXPos));
+            
+            try
+                y2 = obs.get(i,uint32(Constants.SpectroYUpPos));
+                x2 = obs.get(i,uint32(Constants.SpectroXUpPos));
+            catch e
+            end
+            
+            x1new = round(linspace(200,800,dsrate));
+            
+            try
+                x2new = round(linspace(200,800,dsrate));
             catch e
             end
             
