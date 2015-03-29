@@ -255,19 +255,19 @@ function setGraph(h,obs,type)
     
     if strcmp(type,'Spectro') || strcmp(type,'SpectroJaz')
 
-    legendList = cell(1,(height-1)*2);    
-    
-    for i=2:height
-        plot(t,[obs.get(i,uint32(Constants.SpectroXPos))],[obs.get(i,uint32(Constants.SpectroYPos))],colors{1,mod(i,length(colors))+1});
+        legendList = cell(1,(height-1)*2);    
 
-        hold on;
-        
-        plot(t,[obs.get(i,uint32(Constants.SpectroXUpPos))],[obs.get(i,uint32(Constants.SpectroYUpPos))],colors{1,mod(i,length(colors))+1});
-        
-        legendList{index+1} = [obs.get(i,2),'up'];
-        legendList{index} = obs.get(i,2);
-        index = index + 2;
-    end
+        for i=2:height
+            plot(t,[obs.get(i,uint32(Constants.SpectroXPos))],[obs.get(i,uint32(Constants.SpectroYPos))],colors{1,mod(i,length(colors))+1});
+
+            hold on;
+
+            plot(t,[obs.get(i,uint32(Constants.SpectroXUpPos))],[obs.get(i,uint32(Constants.SpectroYUpPos))],colors{1,mod(i,length(colors))+1});
+
+            legendList{index+1} = [obs.get(i,2),'up'];
+            legendList{index} = obs.get(i,2);
+            index = index + 2;
+        end
 
     elseif strcmp(type,'Olfactory')
         legendList = cell(1,(height-1));
@@ -379,35 +379,35 @@ function downSample(varargin)
             y1 = obs.get(i,uint32(Constants.SpectroYPos));
             x1 = obs.get(i,uint32(Constants.SpectroXPos));
             
-            try
+            %try
                 y2 = obs.get(i,uint32(Constants.SpectroYUpPos));
                 x2 = obs.get(i,uint32(Constants.SpectroXUpPos));
-            catch e
-            end
+            %catch e
+            %end
             
             x1new = round(linspace(200,800,dsrate));
             
-            try
+            %try
                 x2new = round(linspace(200,800,dsrate));
-            catch e
-            end
+            %catch e
+            %end
             
             y1 = interp1(x1,y1,x1new);
             
-            try
+            %try
                 y2 = interp1(x2,y2,x2new);
-            catch e
-            end
+            %catch e
+            %end
             
             plot(t,x1,obs.get(i,uint32(Constants.SpectroYPos)),'g');
             hold on
             plot(t,x1new,y1,'r');
             
-            try
+            %try
                 plot(t,x2,obs.get(i,uint32(Constants.SpectroYUpPos)),'g');
                 plot(t,x2new,y2,'b');
-            catch e
-            end
+            %catch e
+            %end
         end
         
     %%Interpolating Olfactory data 

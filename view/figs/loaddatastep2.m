@@ -216,14 +216,18 @@ function okBtn_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
     varargout{1}.sources = get(handles.output,'UserData');
-    id_ = get(handles.editLux1,'String');
+    id_ = get(handles.edit1,'String');
     
     stringsExist = ~isempty(id_);
 
     if stringsExist%~iscell(varargout{1}.sources) && stringsExist
         set(hObject,'UserData',true);
         load('config.mat');
-        config.id = config.id+1;
+        if isfield(config,'id')
+            config.id = config.id+1;
+        else
+            config.id = 1;
+        end
         save('config.mat','config');
         close;
     else
@@ -286,6 +290,14 @@ function updateSource(handles,type,varargin)
         end
 
         if ischar(fname)
+            if strcmp(type,'SpectroJaz')
+                temp2 = [prefix,fname];
+                   
+                   copyfile([pname,fname],[pname,temp2],'f');
+                   
+                   fname = temp2;
+            end
+            
             source.(['pat',num2str(numFieldNames+1)]) = [pname,fname];
         else
             size_ = size(fname);
@@ -294,10 +306,12 @@ function updateSource(handles,type,varargin)
                 temp = fname{1,i};
                 
                 if strcmp(type,'SpectroJaz')
-                   temp = [prefix,temp];
+                   temp2 = [prefix,temp];
+                   disp(temp2);
+                   copyfile([pname,temp],[pname,temp2],'f');
                 end
                 
-                source.(['path',num2str(i+numFieldNames)]) = [pname,temp];
+                source.(['path',num2str(i+numFieldNames)]) = [pname,temp2];
             end
         end
 
@@ -372,7 +386,6 @@ function pushbutton11_Callback(hObject, eventdata, handles)
     updateSource(handles,'FSpectroJaz');
 
 
-
 function editLux1_Callback(hObject, eventdata, handles)
 % hObject    handle to editLux1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -424,3 +437,9 @@ function pushbutton12_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
     updateSource(handles,'USpectroJaz');
+    
+    
+    
+    
+    
+    

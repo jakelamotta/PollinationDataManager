@@ -339,12 +339,18 @@ classdef Observation < handle
                 for i=2:height
                     y1 = matrix{i,y1pos};
                     x1 = matrix{i,x1newpos};
+                    y2 = matrix{i,y2pos};
+                    x2 = matrix{i,x2newpos};
                     
                     x1new = linspace(200,800,dsrate);
+                    x2new = round(linspace(380,600,dsrate));
                     
                     y1 = interp1(x1,y1,x1new);
+                    y2 = interp1(x2,y2,x2new);
                     
                     matrix{i,y1pos} = y1;
+                    matrix{i,y2pos} = y2;
+                    matrix{i,x2newpos} = x2new;
                     matrix{i,x1newpos} = x1new;
                 end
                 
@@ -358,7 +364,6 @@ classdef Observation < handle
                     y1 = matrix{i,y1pos};
                     x1 = matrix{i,x1newpos};
                     
-<<<<<<< HEAD
                     if this.getInterp(type)
                         x1new = linspace(min(x1),max(x1),dsrate);
                         
@@ -366,15 +371,6 @@ classdef Observation < handle
                         
                         matrix{i,y1pos} = y1;
                         matrix{i,x1newpos} = x1new;
-=======
-                    if this.getInterp(type)   
-                       x1new = linspace(min(x1),max(x1),dsrate);
-                    
-                       y1 = interp1(x1,y1,x1new);
-                    
-                       matrix{i,y1pos} = y1;
-                       matrix{i,x1newpos} = x1new;
->>>>>>> 8d0928a6ec92a9b404fdd1d3ecbeedc2cf9212d8
                     else
                         matrix{i,y1pos} = y1(1:dsrate);
                         matrix{i,x1newpos} = x1(1:dsrate);
@@ -390,7 +386,7 @@ classdef Observation < handle
             matrix = this.getMatrix();
             height = this.getNumRows();
             
-            if strcmpi(type,'Spectro')
+            if strcmpi(type,'Spectro') || strcmpi(type,'SpectroJaz')
                 spectroXpos = uint32(Constants.SpectroXPos);
                 spectroXuppos = uint32(Constants.SpectroXUpPos);
                 
@@ -417,25 +413,25 @@ classdef Observation < handle
                     end
                 end
                 
-            elseif strcmpi(type,'SpectroJaz')
-                spectroXpos = uint32(Constants.SpectroXPos);
-                
-                y1 = matrix{2,spectroXpos};
-                
-                appendee = cell(height,length(y1));
-                
-                for j=2:height
-                    row = matrix(j,:);
-                    x1 = row{uint32(Constants.SpectroYPos)};
-                    
-                    for k=1:length(x1)
-                        if j==2
-                            appendee{1,k} = y1(k);
-                        end
-                        
-                        appendee{j,k} = x1(k);
-                    end
-                end
+%             elseif strcmpi(type,'SpectroJaz')
+%                 spectroXpos = uint32(Constants.SpectroXPos);
+%                 
+%                 y1 = matrix{2,spectroXpos};
+%                 
+%                 appendee = cell(height,length(y1));
+%                 
+%                 for j=2:height
+%                     row = matrix(j,:);
+%                     x1 = row{uint32(Constants.SpectroYPos)};
+%                     
+%                     for k=1:length(x1)
+%                         if j==2
+%                             appendee{1,k} = y1(k);
+%                         end
+%                         
+%                         appendee{j,k} = x1(k);
+%                     end
+%                 end
                 
             elseif strcmpi(type,'Olfactory')
                 y1 = matrix{2,uint32(Constants.OlfXPos)};
