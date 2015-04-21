@@ -2,6 +2,7 @@ data/*
 test/*
 /config.mat
 !data/template.xlsx
+!data/insects.txt
 !data/variables.xls
 !data/weatherPath
 !data/placeholder.txt

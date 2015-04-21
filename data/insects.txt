@@ -1,0 +1,9 @@
+Eristalis
+Episyrphus
+Sphaerophoria
+Syrphus
+Bee
+Bumblebee
+Butterfly
+Other_fly
+Wasp
